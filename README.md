@@ -50,14 +50,18 @@ persisted family tree.
 5. **DAG validation** — a parent→child edge that would create a cycle must be
    rejected, not silently accepted.
 
-### Data model requirements
+### Data model
 
-- **Person**: `id`, `name`, plus any other attributes you think are useful —
-  justify your choices in your README.
-- **Parent → Child**: single-direction, at most 2 parent edges per child.
-- **Spouse**: explicit, undirected, distinct from parent→child. A spouse
-  relationship alone never creates a parent edge.
-- The graph must stay a valid DAG with respect to parent→child edges.
+uses **sequelize**  for active-record-esque data modeling.
+
+- **Person**: `id`, `name`, `spouse_id`, `parent_1_id`, and `parent_2_id`.
+- **Parent → Child**: `parent_1_id` and `parent_2_id` are optional, and 
+  are both self-referencing foreign keys.
+- **Spouse**: While the relationship should always be symmetrical, we do
+  not enforce this at the data level. `spouse_id` is a self-referencing
+  foreign key.
+- We use a sequelize validate block to keep the parent-child graph a valid
+  DAG. This runs a loop-detecting recursive query on every insert.
 
 ### Out of scope
 
