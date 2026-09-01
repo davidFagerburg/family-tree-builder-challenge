@@ -42,6 +42,10 @@ const Person = sequelize.define('Person', {
                     type: Sequelize.QueryTypes.SELECT
                 }
             )
+
+            if (loopingRecords.length > 0) {
+                throw Error(`Circular lineage error: "${this.name}" is already an existing ancestor`)
+            }
         }
     }
 })
