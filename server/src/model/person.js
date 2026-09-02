@@ -1,7 +1,15 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import sequelize from '../config/database'
+import sequelize from '../config/database.js'
 
-import RECURSIVE_LINEAGE_CHECK_SQL from './recursive_lineage_check.sql' with { type: 'text' }
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const queryPath = path.join(__dirname, './recursive_lineage_check.sql');
+const RECURSIVE_LINEAGE_CHECK_SQL = fs.readFileSync(queryPath, 'utf8');
 
 const Person = sequelize.define('Person', {
     name: DataTypes.STRING,
