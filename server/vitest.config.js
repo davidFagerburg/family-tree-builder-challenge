@@ -6,17 +6,4 @@ export default defineConfig({
         environment: 'node',
         globals: true,
     },
-    plugins: [
-    {
-      name: 'sql-loader',
-      transform(code, id) {
-        if (id.endsWith('.sql')) {
-          return {
-            code: `export default ${JSON.stringify(code)};`,
-            map: null,
-          };
-        }
-      },
-    },
-  ]
 })
