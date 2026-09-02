@@ -236,7 +236,7 @@ export default class FamilyService {
     }
 
     static async removePerson(personId) {
-        const person = await Person.findByPk(personId, { includes: [{model: Person, as: 'Children1'}, {model: Person, as: 'Children2'}]})
+        const person = await Person.findByPk(personId, { include: [{model: Person, as: 'Children1'}, {model: Person, as: 'Children2'}]})
         if (!person) { throw Error(`Could not find a person with id ${personId}`) }
         if (person.spouse_id) { throw Error(`Person with id ${personId} cannot be removed until spouse relationship is removed.`) }
         if (person.Children1.length > 0 || person.Children2.length > 0) { throw Error(`Person with id ${personId} cannot be removed until all child relathionships have been removed.`) }

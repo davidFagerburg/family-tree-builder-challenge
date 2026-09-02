@@ -15,6 +15,18 @@ You can search by:
 
 You can include as many or as few of these feilds as needed, but you should include at least one.
 You should always include as many search elements as you know about about the person or people you're looking for.
+
+Note that this tool can also be used to answer questions like:
+- who's x's spouse?
+- list x's siblings
+- who are x's parents?
+etc.
+
+Multiple calls of this tool may be chained to answer queries like:
+- list my cousins
+- list my inlaws
+etc.
+
 For the array inputs, you can include as many or as few elements as needed.
 
 Returns: a list of people matching the search criteria, including name and id.
