@@ -16,11 +16,16 @@ const TOOLS = Object.keys(tools).map((tool) => {
   return tools[tool].toolDescription
 });
 
-function runTool(name, input) {
+async function runTool(name, input) {
   console.log("TOOL NAME AND INPUT", name, JSON.stringify(input))
   if (!tools[name]) throw new Error(`Unknown tool: ${name}`);
   console.log(tools[name])
-  tools[name].runTool(input)
+  try {
+    return await tools[name].runTool(input)
+  } catch(error) {
+    console.error(`Error running tool ${name}: ${error.message}`)
+    return { success: false, message: error.message }
+  }
 }
 
 /**
@@ -50,17 +55,19 @@ export async function getChatReply(messages) {
       return textBlock?.text ?? "";
     }
 
+    const toolUseBlocksResolved = await Promise.all(toolUseBlocks.map(async (block) => ({
+      role: "user",
+      content: JSON.stringify({
+        type: "tool_result",
+        tool_use_id: block.id,
+        content: await runTool(block.name, block.input),
+      })
+    })))
+
     conversation = [
       ...conversation,
       { role: "assistant", content: response.content },
-      {
-        role: "user",
-        content: toolUseBlocks.map((block) => ({
-          type: "tool_result",
-          tool_use_id: block.id,
-          content: runTool(block.name, block.input),
-        })),
-      },
+      ...toolUseBlocksResolved
     ];
   }
 }
