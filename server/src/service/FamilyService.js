@@ -88,20 +88,20 @@ export default class FamilyService {
             graph.people.push({ name: person.name, id: `${person.id}` })
             if (person.spouse_id) {
                 graph.spouseEdges.push({
-                    personAId: person.id,
-                    personBId: person.spouse_id
+                    personAId: `${person.id}`,
+                    personBId: `${person.spouse_id}`
                 })
             }
             if (person.parent_1_id) {
                 graph.parentEdges.push({
-                    parentId: person.parent_1_id,
-                    childId: person.id
+                    parentId: `${person.parent_1_id}`,
+                    childId: `${person.id}`
                 })
             }
             if (person.parent_2_id) {
                 graph.parentEdges.push({
-                    parentId: person.parent_2_id,
-                    childId: person.id
+                    parentId: `${person.parent_2_id}`,
+                    childId: `${person.id}`
                 })
             }
         }
@@ -219,7 +219,7 @@ export default class FamilyService {
             throw Error("No valid query options provided")
         }
 
-        return await Person.findOne(queryOptions)
+        return await Person.findAll(queryOptions)
     }
 
 }
