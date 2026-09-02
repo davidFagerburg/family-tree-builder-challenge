@@ -1,4 +1,5 @@
 import { Router } from "express";
+import FamilyService from "../service/FamilyService.js";
 
 export const graphRouter = Router();
 
@@ -19,32 +20,7 @@ export const graphRouter = Router();
 // The graph must stay a valid DAG with respect to parentEdges (no cycles),
 // and must survive a process restart.
 graphRouter.get("/", async (_req, res) => {
-  // example data to illustrate the expected shape of the response. This is not
-  // persisted anywhere, and will be lost on server restart.
-  const peopleExample = [
-    { id: "1", name: "Alice" },
-    { id: "2", name: "Bob" },
-    { id: "3", name: "Charlie" },
-  ];
-  
-  const parentEdgesExample = [
-    { parentId: "1", childId: "3" },
-    { parentId: "2", childId: "3" },
-  ];
-
-  const spouseEdgesExample = [
-    { personAId: "1", personBId: "2" },
-  ];
-
-  res.json({
-    people: [
-      ...peopleExample
-    ],
-    parentEdges: [
-      ...parentEdgesExample
-    ],
-    spouseEdges: [
-      ...spouseEdgesExample
-    ],
-  });
+  const graph = await FamilyService.getPersonGraph()
+  console.log("GET /api/graph", JSON.stringify(graph))
+  res.json(graph);
 });

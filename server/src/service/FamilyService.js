@@ -1,5 +1,5 @@
-import Person from '../model/person'
-import db from '../config/database'
+import Person from '../model/person.js'
+import db from '../config/database.js'
 import { Op } from 'sequelize'
 
 export default class FamilyService {
@@ -75,6 +75,37 @@ export default class FamilyService {
 
     static async findAllPeople() {
         return await Person.findAll()
+    }
+
+    static async getPersonGraph() {
+        const people = await Person.findAll()
+        const graph = {
+            people: [],
+            parentEdges: [],
+            spouseEdges: []
+        }
+        for (const person of people) {
+            graph.people.push({ name: person.name, id: `${person.id}` })
+            if (person.spouse_id) {
+                graph.spouseEdges.push({
+                    personAId: person.id,
+                    personBId: person.spouse_id
+                })
+            }
+            if (person.parent_1_id) {
+                graph.parentEdges.push({
+                    parentId: person.parent_1_id,
+                    childId: person.id
+                })
+            }
+            if (person.parent_2_id) {
+                graph.parentEdges.push({
+                    parentId: person.parent_2_id,
+                    childId: person.id
+                })
+            }
+        }
+        return graph
     }
 
     static async findPerson({name, spouseName, parent1Name, parent2Name, childNames, siblingNames}) {

@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 
+import tools from './tools/index.js'
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -8,29 +10,17 @@ const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-5";
 
 const SYSTEM_PROMPT = `You are a friendly assistant helping someone describe their family tree in conversation.
 Ask clarifying questions whenever a detail is ambiguous or missing.
-You are currently a plain conversational assistant — you have no way to record or persist
-what the user tells you yet. That piece is intentionally left unimplemented.`;
+You have access to tools that can persist the family tree in a database.`;
 
-const TOOLS = [
-  {
-    name: "add_person",
-    description: "Add a new person to the family tree.",
-    input_schema: {
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        name: { type: "string" },
-      },
-      required: ["id", "name"],
-    },
-  }
-];
+const TOOLS = Object.keys(tools).map((tool) => {
+  return tools[tool].toolDescription
+});
 
-function runTool(name) {
-  if (name === "add_person") {
-    return "Person added successfully";
-  }
-  throw new Error(`Unknown tool: ${name}`);
+function runTool(name, input) {
+  console.log("TOOL NAME AND INPUT", name, JSON.stringify(input))
+  if (!tools[name]) throw new Error(`Unknown tool: ${name}`);
+  console.log(tools[name])
+  tools[name].runTool(input)
 }
 
 /**
@@ -68,7 +58,7 @@ export async function getChatReply(messages) {
         content: toolUseBlocks.map((block) => ({
           type: "tool_result",
           tool_use_id: block.id,
-          content: runTool(block.name),
+          content: runTool(block.name, block.input),
         })),
       },
     ];
