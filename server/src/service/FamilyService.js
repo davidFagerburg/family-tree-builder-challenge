@@ -61,6 +61,17 @@ export default class FamilyService {
         await Promise.all([spouse1.save(), spouse2.save()])
     }
 
+    static async unsetParents(personId) {
+        const person = await Person.findByPk(personId)
+        if (!person) { throw Error(`cannot unset parents - person not found with id: ${personId}`) }
+        if (!person.parent_1_id && !person.parent_2_id) { throw Error('no parents to unset') }
+
+        person.parent_1_id = null
+        person.parent_2_id = null
+
+        await person.save()
+    }
+
     static async renamePerson(personId, name) {
         const person = await Person.findByPk(personId)
         if (!person) { throw Error(`cannot rename - person not found with id: ${personId}`) }
@@ -84,13 +95,15 @@ export default class FamilyService {
             parentEdges: [],
             spouseEdges: []
         }
+        const addedSpousePairs = new Set()
         for (const person of people) {
             graph.people.push({ name: person.name, id: `${person.id}` })
-            if (person.spouse_id) {
+            if (person.spouse_id && !addedSpousePairs.has(`${person.id}-${person.spouse_id}`) && !addedSpousePairs.has(`${person.spouse_id}-${person.id}`)) {
                 graph.spouseEdges.push({
                     personAId: `${person.id}`,
                     personBId: `${person.spouse_id}`
                 })
+                addedSpousePairs.add(`${person.id}-${person.spouse_id}`)
             }
             if (person.parent_1_id) {
                 graph.parentEdges.push({
@@ -222,4 +235,12 @@ export default class FamilyService {
         return await Person.findAll(queryOptions)
     }
 
+    static async removePerson(personId) {
+        const person = await Person.findByPk(personId, { includes: [{model: Person, as: 'Children1'}, {model: Person, as: 'Children2'}]})
+        if (!person) { throw Error(`Could not find a person with id ${personId}`) }
+        if (person.spouse_id) { throw Error(`Person with id ${personId} cannot be removed until spouse relationship is removed.`) }
+        if (person.Children1.length > 0 || person.Children2.length > 0) { throw Error(`Person with id ${personId} cannot be removed until all child relathionships have been removed.`) }
+
+        await person.destroy()
+    }
 }
