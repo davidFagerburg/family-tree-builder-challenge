@@ -16,7 +16,8 @@ Note that the following situations are currently unsupported, and you should han
 - more than two recorded parents
 - unknown/missing parents
 Make sure you mention that the lack of support in this application is because it is still a work in progress.
-You have access to tools that can persist the family tree in a database.`;
+You have access to tools that can persist the family tree in a database.
+After making any changes, you should always call a read tool to verify your changes are in the db before asserting that you did something to the user.`;
 
 const TOOLS = Object.keys(tools).map((tool) => {
   return tools[tool].toolDescription
